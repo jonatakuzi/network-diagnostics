@@ -1,20 +1,25 @@
 # Network Diagnostics Tool
 
-A Python command-line network diagnostic utility that runs a suite of checks against any host or IP — DNS resolution, ping, port scanning, and HTTP probing. Built for quick troubleshooting without needing to remember individual `ping`, `nmap`, or `curl` commands.
+A Python command-line network diagnostic utility — run DNS lookups, ping tests, port scans, and HTTP probes against any host or IP in one command. No need to remember individual `ping`, `nmap`, or `curl` flags.
+
+![Python](https://img.shields.io/badge/Python-3.7%2B-blue?logo=python&logoColor=white)
+![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
 
-- **DNS resolution** with response time
-- **Ping test** with packet loss summary
-- **Port scanner** across common services (SSH, HTTP, MySQL, Redis, etc.)
-- **HTTP probe** — checks response code and server headers
-- Color-coded output (green = open/reachable, red = closed/failed)
-- No external dependencies — pure Python standard library
+- **DNS resolution** — resolve hostnames to IPs with response time
+- **Ping test** — ICMP packet loss summary with configurable count and timeout
+- **Port scanner** — check common services (SSH 22, HTTP 80, HTTPS 443, MySQL 3306, Redis 6379, etc.)
+- **HTTP probe** — check response code and server headers
+- **Export results** to a timestamped text file with `--export`
+- Color-coded output: green = open/reachable, red = closed/failed
+- No external dependencies — pure Python standard library (`socket`, `subprocess`, `urllib`)
 
 ## Requirements
 
 - Python 3.7+
-- No pip installs needed
+- No `pip install` needed
 
 ## Installation
 
@@ -30,68 +35,37 @@ cd network-diagnostics
 python netdiag.py google.com
 python netdiag.py 192.168.1.1
 ```
+```
+[ DNS ]  google.com → 142.250.80.46  (2ms)
+[ PING ] 4/4 packets received, 0% loss, avg 11ms
+[ PORTS ]
+  22  SSH     closed
+  80  HTTP    open
+  443 HTTPS   open
+```
 
 ### Scan specific ports
 ```bash
-python netdiag.py github.com --ports 22 80 443
-python netdiag.py 10.0.0.5 --ports 3306 5432 6379
+python netdiag.py github.com --ports 22 80 443 9418
 ```
 
-### Full scan including HTTP probe
+### HTTP probe
 ```bash
-python netdiag.py example.com --full
+python netdiag.py example.com --http
 ```
 
-## Example Output
-
-```
-==================================================
-  netdiag  |  github.com
-  2025-05-20 11:32:04
-==================================================
-
-DNS Resolution
---------------------------------------------------
-  v github.com -> 140.82.114.4  (12.3 ms)
-
-Ping (4 packets)
---------------------------------------------------
-  -> 4 packets transmitted, 4 received, 0% packet loss
-  v Host is reachable
-
-Port Scan
---------------------------------------------------
-  v Port 22     (SSH         ) OPEN    11 ms
-  v Port 80     (HTTP        ) OPEN    10 ms
-  v Port 443    (HTTPS       ) OPEN    10 ms
-  x Port 3306   (MySQL       ) CLOSED
-
-Done.
+### Custom ping count and timeout
+```bash
+python netdiag.py 10.0.0.5 --count 10 --timeout 2
 ```
 
-## Ports Scanned by Default
-
-| Port | Service | Port | Service |
-|------|---------|------|---------|
-| 21 | FTP | 443 | HTTPS |
-| 22 | SSH | 3306 | MySQL |
-| 25 | SMTP | 3389 | RDP |
-| 53 | DNS | 5432 | PostgreSQL |
-| 80 | HTTP | 6379 | Redis |
-| 110 | POP3 | 8080 | HTTP-Alt |
-| 143 | IMAP | 27017 | MongoDB |
-
-## Project Structure
-
+### Export results to file
+```bash
+python netdiag.py example.com --export
 ```
-network-diagnostics/
-├── netdiag.py   # Main diagnostic script
-└── README.md
-```
+Saves to `netdiag_example.com_20241115_143201.txt`
 
-## Use Cases
+## Tech Stack
 
-- Quickly check if a server is reachable and which services are exposed
-- Troubleshoot connectivity issues during deployments
-- Verify firewall rules are working as expected
-- Pre-flight check before connecting to a remote database or API
+- Python 3.7+
+- Standard library: `socket`, `subprocess`, `urllib`, `argparse`, `datetime`
